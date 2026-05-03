@@ -35,10 +35,14 @@
 
     <!-- FLOATING ACCESSIBILITY CONTROLS -->
     <div class="floating-controls">
-        <button @click="toggleMusic" class="control-btn hover:bg-gray-50">
-            <i class="fa-solid" :class="isMuted ? 'fa-volume-xmark text-red-500' : 'fa-volume-high text-blue-600'"></i>
-            <span x-text="isMuted ? 'Muted' : 'Music On'"></span>
-        </button>
+        <div class="control-btn hover:bg-gray-50">
+            <button @click="toggleMusic" class="flex items-center gap-2">
+                <i class="fa-solid" :class="isMuted ? 'fa-volume-xmark text-red-500' : 'fa-volume-high text-blue-600'"></i>
+                <span x-text="isMuted ? 'Muted' : 'Music On'"></span>
+            </button>
+            <!-- VOLUME REGULATOR -->
+            <input type="range" min="0" max="1" step="0.1" x-model="volume" @input="updateVolume" class="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+        </div>
 
         <div class="control-btn">
             <i class="fa-solid fa-font text-gray-400"></i>
@@ -79,7 +83,7 @@
             <template x-if="isLoggedIn">
                 <div class="flex items-center gap-3 pl-2 border-l border-gray-100">
                     <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px] font-bold" 
-                         x-text="userName.split(' ').map(n => n[0]).join('')"></div>
+                         x-text="userName ? userName.split(' ').map(n => n[0]).join('') : '?'"></div>
                     <button @click="isLoggedIn = false" class="text-[10px] uppercase font-bold text-gray-400 hover:text-red-500">Exit</button>
                 </div>
             </template>
@@ -109,7 +113,8 @@
                 <template x-if="authMode === 'signup'">
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-gray-600 ml-1">Full Name</label>
-                        <input type="text" placeholder="John Doe" required class="w-full p-4 border border-gray-100 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+                        <!-- Added x-model here to fix the "JDC" issue -->
+                        <input type="text" x-model="userName" placeholder="John Doe" required class="w-full p-4 border border-gray-100 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </template>
                 <div class="space-y-1">
@@ -347,7 +352,7 @@
                     <template x-if="payMethod !== 'cash'">
                         <div class="space-y-1 mt-4" x-transition>
                             <label class="text-xs font-bold text-gray-600 ml-1" x-text="payMethod === 'card' ? 'Card Number' : payMethod.charAt(0).toUpperCase() + payMethod.slice(1) + ' Number'"></label>
-                            <input type="text" :placeholder="payMethod === 'card' ? '0000 0000 0000 0000' : '09XX XXX XXXX'" class="w-full p-4 border border-gray-100 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" x-model="paymentNumber" :placeholder="payMethod === 'card' ? '0000 0000 0000 0000' : '09XX XXX XXXX'" class="w-full p-4 border border-gray-100 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </template>
                 </div>
@@ -436,10 +441,12 @@
                 showCart: false, 
                 view: 'bag', 
                 payMethod: 'gcash', 
+                paymentNumber: '',
                 currency: 'USD', 
                 cart: [],
                 
                 isMuted: true,
+                volume: 0.5,
                 fontSize: 16,
 
                 heroActiveIndex: 0,
@@ -455,7 +462,7 @@
                 showAuth: false,
                 authMode: 'login', 
                 isLoggedIn: false,
-                userName: 'Juan Dela Cruz',
+                userName: '', // Changed from "Juan Dela Cruz" to empty to fix sign-up display
 
                 products: [
                     { id: 1, name: 'Premium Journal', price: 1.99, rating: 5, image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400', colors: [{hex: '#000', name: 'Black'}, {hex: '#2D5BFF', name: 'Blue'}, {hex: '#FF5B5B', name: 'Red'}], selectedColor: {hex: '#000', name: 'Black'} },
@@ -478,6 +485,7 @@
                     setInterval(() => {
                         this.heroActiveIndex = (this.heroActiveIndex + 1) % this.products.length;
                     }, 4000);
+                    document.getElementById('bgMusic').volume = this.volume;
                 },
                 
                 toggleMusic() {
@@ -493,6 +501,11 @@
                     }
                 },
 
+                updateVolume() {
+                    const audio = document.getElementById('bgMusic');
+                    audio.volume = this.volume;
+                },
+
                 formatPrice(p) { 
                     if (this.currency === 'PHP') return '₱' + (p * 58).toFixed(2);
                     if (this.currency === 'EUR') return '€' + (p * 0.92).toFixed(2);
@@ -503,7 +516,6 @@
                     if (existingItem) {
                         existingItem.qty++;
                     } else {
-                        // Deep copy to prevent reference issues
                         this.cart.push({ ...p, selectedColor: { ...p.selectedColor }, qty: 1 });
                     }
                     this.showCart = true; 
@@ -520,6 +532,12 @@
                         alert('Please fill out shipping information');
                         return;
                     }
+
+                    if (this.payMethod !== 'cash' && !this.paymentNumber) {
+                        alert('Please enter your ' + (this.payMethod === 'card' ? 'Card Number' : this.payMethod.charAt(0).toUpperCase() + this.payMethod.slice(1) + ' Number'));
+                        return;
+                    }
+
                     this.lastOrder = {
                         items: JSON.parse(JSON.stringify(this.cart)),
                         total: this.cart.reduce((sum, i) => sum + (i.price * i.qty), 0)
