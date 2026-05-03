@@ -17,13 +17,13 @@
         .btn-blue-pill:hover { background: #1a44db; transform: translateY(-1px); }
         .btn-outline-pill { background: transparent; color: #2D5BFF; border: 2px solid #D1D5DB; border-radius: 9999px; font-weight: 600; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
-        /* Updated Hero Gradient */
         .hero-bg-gradient { 
             background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #dbeafe 100%); 
         }
-        /* Controls Styling */
         .floating-controls { position: fixed; bottom: 20px; left: 20px; z-index: 100; display: flex; gap: 10px; }
         .control-btn { background: white; border: 1px solid #e5e7eb; padding: 10px; rounded-full: 9999px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 50px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; }
+        .color-dot { width: 16px; height: 16px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-dot.active { border-color: #2D5BFF; transform: scale(1.2); }
     </style>
 </head>
 <body x-data="studyHub" :style="{ fontSize: fontSize + 'px' }">
@@ -35,13 +35,11 @@
 
     <!-- FLOATING ACCESSIBILITY CONTROLS -->
     <div class="floating-controls">
-        <!-- Music Toggle -->
         <button @click="toggleMusic" class="control-btn hover:bg-gray-50">
             <i class="fa-solid" :class="isMuted ? 'fa-volume-xmark text-red-500' : 'fa-volume-high text-blue-600'"></i>
             <span x-text="isMuted ? 'Muted' : 'Music On'"></span>
         </button>
 
-        <!-- Font Size Selector -->
         <div class="control-btn">
             <i class="fa-solid fa-font text-gray-400"></i>
             <select x-model="fontSize" class="bg-transparent outline-none cursor-pointer">
@@ -197,6 +195,16 @@
                         <span class="text-[10px] text-gray-400 ml-1" x-text="`(${p.rating}.0)`"></span>
                     </div>
 
+                    <!-- NEW: Color Selection -->
+                    <div class="flex gap-2 my-3">
+                        <template x-for="color in p.colors" :key="color">
+                            <div class="color-dot" 
+                                 :style="{ backgroundColor: color }" 
+                                 :class="p.selectedColor === color ? 'active' : ''"
+                                 @click="p.selectedColor = color"></div>
+                        </template>
+                    </div>
+
                     <p class="text-blue-600 font-black text-lg" x-text="formatPrice(p.price)"></p>
                     <button @click="addToCart(p)" class="btn-blue-pill w-full py-3 mt-5 text-sm">Add to Bag</button>
                 </div>
@@ -240,11 +248,16 @@
             </div>
             
             <div x-show="view === 'bag'" class="flex-1 overflow-y-auto p-8 text-left">
-                <template x-for="(item, idx) in cart" :key="item.id">
+                <template x-for="(item, idx) in cart" :key="item.id + item.selectedColor">
                     <div class="flex gap-4 border-b pb-4 mb-4 items-center">
                         <img :src="item.image" class="w-16 h-16 rounded-xl object-cover">
                         <div class="flex-1">
                             <div class="font-bold text-sm" x-text="item.name"></div>
+                            <!-- Display Selected Color -->
+                            <div class="flex items-center gap-1 mt-1">
+                                <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: item.selectedColor }"></div>
+                                <!-- <span class="text-[10px] text-gray-500 uppercase font-bold" x-text="item.selectedColor"></span> -->
+                            </div>
                             <div class="flex items-center gap-3 mt-1">
                                 <button @click="updateQty(item, -1)" class="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600"><i class="fa-solid fa-minus text-[10px]"></i></button>
                                 <span class="text-xs font-bold w-4 text-center" x-text="item.qty"></span>
@@ -328,7 +341,10 @@
                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Order Summary</p>
                     <template x-for="item in lastOrder.items">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600" x-text="item.qty + 'x ' + item.name"></span>
+                            <div>
+                                <span class="text-gray-600" x-text="item.qty + 'x ' + item.name"></span>
+                                <span class="text-[8px] bg-gray-200 px-1 rounded ml-1" x-text="item.selectedColor"></span>
+                            </div>
                             <span class="font-bold" x-text="formatPrice(item.price * item.qty)"></span>
                         </div>
                     </template>
@@ -383,7 +399,7 @@
         </div>
         
         <div class="mt-20 pt-8 border-t border-gray-50 text-center">
-            <p class="text-gray-400 text-xs tracking-wide">© 2026 StudyHub Platform. v.0.9 All rights reserved.</p>
+            <p class="text-gray-400 text-xs tracking-wide">© 2026 StudyHub Platform. v.1.0 All rights reserved.</p>
         </div>
     </footer>
 
@@ -396,7 +412,6 @@
                 currency: 'USD', 
                 cart: [],
                 
-                // NEW: Accessibility Features
                 isMuted: true,
                 fontSize: 16,
 
@@ -414,23 +429,22 @@
                 userName: 'Juan Dela Cruz',
 
                 products: [
-                    { id: 1, name: 'Premium Journal', price: 1.99, rating: 5, image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400' },
-                    { id: 2, name: 'Studio Pen Set', price: 0.99, rating: 4, image: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=400' },
-                    { id: 3, name: 'Smart Calculator', price: 2.99, rating: 5, image: 'https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=400' },
-                    { id: 4, name: 'Canvas Backpack', price: 19.99, rating: 4, image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400' },
-                    { id: 5, name: 'Pastel Highlighters', price: 1.59, rating: 5, image: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=400' },
-                    { id: 6, name: 'Wireless Mouse', price: 25, rating: 3.99, image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400' },
-                    { id: 7, name: 'Desk Organizer', price: 20, rating: 4.99, image: 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?w=400' },
-                    { id: 8, name: 'Sticky Note Bundle', price: 5, rating: 0.99, image: 'https://images.unsplash.com/photo-1587145820137-a9dbc8c5ed99?w=400' },
-                    { id: 9, name: 'Math Geometry Set', price: 12, rating: 1.89, image: 'https://plus.unsplash.com/premium_photo-1723651610517-8d6efa0201d2?w=400' },
-                    { id: 10, name: 'Noise-Canceling Buds', price: 55, rating: 0.99, image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400' },
-                    { id: 11, name: 'Lined Legal Pads', price: 7, rating: 2.99, image: 'https://images.unsplash.com/photo-1709728163881-b77f2a76a36a?w=400' },
-                    { id: 12, name: 'Laptop Sleeve', price: 18, rating: 1.99, image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400' },
-                    { id: 13, name: 'Hardcover Sketchbook', price: 4.99, rating: 5, image: 'https://images.unsplash.com/photo-1557752370-64699f42ee4d?w=400' },
-                    { id: 14, name: 'USB-C Hub Adapter', price: 2.99, rating: 3, image: 'https://images.unsplash.com/photo-1760376789487-994070337c76?w=400' }
+                    { id: 1, name: 'Premium Journal', price: 1.99, rating: 5, image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400', colors: ['#000', '#2D5BFF', '#FF5B5B'], selectedColor: '#000' },
+                    { id: 2, name: 'Studio Pen Set', price: 0.99, rating: 4, image: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=400', colors: ['#000', '#2D5BFF', '#FFF'], selectedColor: '#000' },
+                    { id: 3, name: 'Smart Calculator', price: 2.99, rating: 5, image: 'https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=400', colors: ['#333', '#888'], selectedColor: '#333' },
+                    { id: 4, name: 'Canvas Backpack', price: 19.99, rating: 4, image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400', colors: ['#4b5563', '#1e40af', '#166534'], selectedColor: '#4b5563' },
+                    { id: 5, name: 'Pastel Highlighters', price: 1.59, rating: 5, image: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=400', colors: ['#fef08a', '#bbf7d0', '#fbcfe8'], selectedColor: '#fef08a' },
+                    { id: 6, name: 'Wireless Mouse', price: 25, rating: 3.99, image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400', colors: ['#000', '#ef4444', '#3b82f6'], selectedColor: '#000' },
+                    { id: 7, name: 'Desk Organizer', price: 20, rating: 4.99, image: 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?w=400', colors: ['#fff', '#000'], selectedColor: '#fff' },
+                    { id: 8, name: 'Sticky Note Bundle', price: 5, rating: 0.99, image: 'https://images.unsplash.com/photo-1587145820137-a9dbc8c5ed99?w=400', colors: ['#fef08a', '#fde68a'], selectedColor: '#fef08a' },
+                    { id: 9, name: 'Math Geometry Set', price: 12, rating: 1.89, image: 'https://plus.unsplash.com/premium_photo-1723651610517-8d6efa0201d2?w=400', colors: ['#cbd5e1', '#2D5BFF'], selectedColor: '#cbd5e1' },
+                    { id: 10, name: 'Noise-Canceling Buds', price: 55, rating: 0.99, image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400', colors: ['#fff', '#000'], selectedColor: '#fff' },
+                    { id: 11, name: 'Lined Legal Pads', price: 7, rating: 2.99, image: 'https://images.unsplash.com/photo-1709728163881-b77f2a76a36a?w=400', colors: ['#fff', '#fef9c3'], selectedColor: '#fff' },
+                    { id: 12, name: 'Laptop Sleeve', price: 18, rating: 1.99, image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400', colors: ['#111', '#444'], selectedColor: '#111' },
+                    { id: 13, name: 'Hardcover Sketchbook', price: 4.99, rating: 5, image: 'https://images.unsplash.com/photo-1557752370-64699f42ee4d?w=400', colors: ['#000', '#7c2d12'], selectedColor: '#000' },
+                    { id: 14, name: 'USB-C Hub Adapter', price: 2.99, rating: 3, image: 'https://images.unsplash.com/photo-1760376789487-994070337c76?w=400', colors: ['#94a3b8'], selectedColor: '#94a3b8' }
                 ],
                 
-                // NEW: Audio Logic
                 toggleMusic() {
                     const audio = document.getElementById('bgMusic');
                     this.isMuted = !this.isMuted;
@@ -438,7 +452,6 @@
                         audio.pause();
                     } else {
                         audio.play().catch(() => {
-                            // Catch browser autoplay prevention
                             alert("Click anywhere on the page first to enable music playback.");
                             this.isMuted = true;
                         });
@@ -447,7 +460,7 @@
 
                 formatPrice(p) { return this.currency === 'PHP' ? '₱' + (p * 58).toFixed(2) : '$' + p.toFixed(2); },
                 addToCart(p) { 
-                    const existingItem = this.cart.find(item => item.id === p.id);
+                    const existingItem = this.cart.find(item => item.id === p.id && item.selectedColor === p.selectedColor);
                     if (existingItem) {
                         existingItem.qty++;
                     } else {
@@ -459,7 +472,7 @@
                 updateQty(item, amount) {
                     item.qty += amount;
                     if (item.qty <= 0) {
-                        this.cart = this.cart.filter(i => i.id !== item.id);
+                        this.cart = this.cart.filter(i => !(i.id === item.id && i.selectedColor === item.selectedColor));
                     }
                 },
                 confirmPurchase() {
