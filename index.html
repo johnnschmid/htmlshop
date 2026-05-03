@@ -113,7 +113,6 @@
                 <template x-if="authMode === 'signup'">
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-gray-600 ml-1">Full Name</label>
-                        <!-- Added x-model here to fix the "JDC" issue -->
                         <input type="text" x-model="userName" placeholder="John Doe" required class="w-full p-4 border border-gray-100 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </template>
@@ -145,7 +144,6 @@
                 <h1 class="text-5xl md:text-7xl font-extrabold leading-tight text-gray-900">Smarter School <br> <span class="text-blue-600">Supplies</span></h1>
                 <p class="text-gray-500 text-lg">Everything you need to succeed, all in one hub.</p>
                 
-                <!-- Featured Product Info & Quick Order -->
                 <div class="bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-white/50 max-w-sm space-y-4">
                     <div class="flex flex-col gap-1">
                         <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Flash Deal</p>
@@ -161,7 +159,6 @@
                 </div>
             </div>
             
-            <!-- Animated Hero Images -->
             <div class="md:w-1/2 relative h-[300px] md:h-[450px] w-full flex items-center justify-center">
                 <template x-for="(p, index) in products" :key="'hero-'+p.id">
                     <div x-show="heroActiveIndex === index" 
@@ -228,7 +225,6 @@
                         <span class="text-[10px] text-gray-400 ml-1" x-text="`(${p.rating}.0)`"></span>
                     </div>
 
-                    <!-- Color Selection -->
                     <div class="flex gap-2 my-3">
                         <template x-for="cObj in p.colors" :key="cObj.hex">
                             <div class="color-dot" 
@@ -254,9 +250,7 @@
             <div class="space-y-6 order-1 md:order-2 text-left">
                 <h2 class="text-4xl font-bold text-gray-900 mb-4">About StudyHub</h2>
                 <p class="text-gray-600 leading-relaxed">StudyHub was built with one goal in mind — to make school preparation simple, affordable, and stress-free for every student.</p>
-                <p class="text-gray-600 leading-relaxed">We understand how challenging it can be to find complete and budget-friendly school supplies. That’s why we created a platform where everything you need is available in one place — from basic essentials to ready-made school kits designed for convenience.</p>
-                <p class="text-gray-600 leading-relaxed">Our mission is to support students in achieving their academic goals by providing reliable, high-quality, and accessible learning tools.</p>
-                <p class="text-gray-600 leading-relaxed">At StudyHub, we don’t just sell supplies — we help build better learning experiences.</p>
+                <p class="text-gray-600 leading-relaxed">We understand how challenging it can be to find complete and budget-friendly school supplies. That’s why we created a platform where everything you need is available in one place.</p>
                 <div class="space-y-3 pt-4">
                     <div class="flex items-center gap-3">
                         <span class="text-2xl">🎯</span>
@@ -405,31 +399,19 @@
             <div class="text-left space-y-6">
                 <h2 class="text-4xl font-bold text-gray-900">Contact Us</h2>
                 <p class="text-gray-500 max-w-sm">Have questions or need help with your order? Our team is here to support your learning journey.</p>
-                
                 <div class="space-y-4">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-envelope"></i></div>
                         <span class="font-bold text-gray-700">support@studyhub.com</span>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-phone"></i></div>
-                        <span class="font-bold text-gray-700">+63 (912) 345 6789</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-location-dot"></i></div>
-                        <span class="font-bold text-gray-700">123 Academic Way, Manila, PH</span>
-                    </div>
                 </div>
             </div>
-
             <div class="flex flex-col items-center md:items-end gap-4">
                 <div class="bg-gray-50 p-6 rounded-[2.5rem] border border-gray-100 card-shadow inline-block">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://johnnschmid.vercel.app&color=2D5BFF" alt="StudyHub QR Code" class="w-32 h-32 md:w-40 md:h-40 rounded-xl">
                 </div>
-                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-[0.2em] mr-4">Scan to Visit Site</p>
             </div>
         </div>
-        
         <div class="mt-20 pt-8 border-t border-gray-50 text-center">
             <p class="text-gray-400 text-xs tracking-wide">© 2026 StudyHub Platform. v.1.1. All rights reserved.</p>
         </div>
@@ -444,11 +426,9 @@
                 paymentNumber: '',
                 currency: 'USD', 
                 cart: [],
-                
                 isMuted: true,
                 volume: 0.5,
                 fontSize: 16,
-
                 heroActiveIndex: 0,
 
                 shippingInfo: {
@@ -462,7 +442,7 @@
                 showAuth: false,
                 authMode: 'login', 
                 isLoggedIn: false,
-                userName: '', // Changed from "Juan Dela Cruz" to empty to fix sign-up display
+                userName: '', 
 
                 products: [
                     { id: 1, name: 'Premium Journal', price: 1.99, rating: 5, image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400', colors: [{hex: '#000', name: 'Black'}, {hex: '#2D5BFF', name: 'Blue'}, {hex: '#FF5B5B', name: 'Red'}], selectedColor: {hex: '#000', name: 'Black'} },
@@ -486,24 +466,24 @@
                         this.heroActiveIndex = (this.heroActiveIndex + 1) % this.products.length;
                     }, 4000);
                     document.getElementById('bgMusic').volume = this.volume;
+                    
+                    // Added Watcher: Updates shipping name automatically when user logs in
+                    this.$watch('isLoggedIn', value => {
+                        if (value && this.userName) {
+                            this.shippingInfo.name = this.userName;
+                        }
+                    });
                 },
                 
                 toggleMusic() {
                     const audio = document.getElementById('bgMusic');
                     this.isMuted = !this.isMuted;
-                    if (this.isMuted) {
-                        audio.pause();
-                    } else {
-                        audio.play().catch(() => {
-                            alert("Click anywhere on the page first to enable music playback.");
-                            this.isMuted = true;
-                        });
-                    }
+                    if (this.isMuted) audio.pause();
+                    else audio.play();
                 },
 
                 updateVolume() {
-                    const audio = document.getElementById('bgMusic');
-                    audio.volume = this.volume;
+                    document.getElementById('bgMusic').volume = this.volume;
                 },
 
                 formatPrice(p) { 
@@ -511,30 +491,35 @@
                     if (this.currency === 'EUR') return '€' + (p * 0.92).toFixed(2);
                     return '$' + p.toFixed(2); 
                 },
+
                 addToCart(p) { 
                     const existingItem = this.cart.find(item => item.id === p.id && item.selectedColor.hex === p.selectedColor.hex);
-                    if (existingItem) {
-                        existingItem.qty++;
-                    } else {
-                        this.cart.push({ ...p, selectedColor: { ...p.selectedColor }, qty: 1 });
-                    }
+                    if (existingItem) existingItem.qty++;
+                    else this.cart.push({ ...p, selectedColor: { ...p.selectedColor }, qty: 1 });
                     this.showCart = true; 
                     this.view = 'bag'; 
                 },
+
                 updateQty(item, amount) {
                     item.qty += amount;
                     if (item.qty <= 0) {
                         this.cart = this.cart.filter(i => !(i.id === item.id && i.selectedColor.hex === item.selectedColor.hex));
                     }
                 },
+
                 confirmPurchase() {
+                    // Feature Add: Ensure the logged-in name is used if shipping name is empty
+                    if (this.isLoggedIn && !this.shippingInfo.name) {
+                        this.shippingInfo.name = this.userName;
+                    }
+
                     if (!this.shippingInfo.name || !this.shippingInfo.address) {
                         alert('Please fill out shipping information');
                         return;
                     }
 
                     if (this.payMethod !== 'cash' && !this.paymentNumber) {
-                        alert('Please enter your ' + (this.payMethod === 'card' ? 'Card Number' : this.payMethod.charAt(0).toUpperCase() + this.payMethod.slice(1) + ' Number'));
+                        alert('Please enter payment details');
                         return;
                     }
 
@@ -545,9 +530,9 @@
                     this.view = 'summary';
                     this.cart = [];
                 },
+
                 rateProduct(product, score) {
                     product.rating = score;
-                    alert(`Thanks for rating ${product.name} ${score} stars!`);
                 }
             }))
         })
