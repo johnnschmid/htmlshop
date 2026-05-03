@@ -18,6 +18,12 @@
         .btn-outline-pill { background: transparent; color: #2D5BFF; border: 2px solid #D1D5DB; border-radius: 9999px; font-weight: 600; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
         .hero-bg { background: linear-gradient(90deg, #ffffff 0%, #f8faff 100%); }
+        @keyframes music-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .pulse-active { animation: music-pulse 2s infinite ease-in-out; }
     </style>
 </head>
 <body x-data="studyHub">
@@ -43,7 +49,9 @@
 
         <div class="flex items-center gap-4">
             <!-- MUSIC TOGGLE -->
-            <button @click="toggleMusic()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-blue-600 hover:bg-blue-50 transition-colors">
+            <button @click="toggleMusic()" 
+                    :class="isMusicPlaying ? 'bg-blue-50 text-blue-600 pulse-active' : 'bg-gray-50 text-gray-400'"
+                    class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-100 transition-all duration-300">
                 <i class="fa-solid" :class="isMusicPlaying ? 'fa-volume-high' : 'fa-volume-xmark'"></i>
             </button>
 
@@ -382,6 +390,15 @@
                 
                 // MUSIC STATE
                 isMusicPlaying: false,
+                initialVolume: 0.3,
+
+                // INIT FUNCTION
+                init() {
+                    const audio = document.getElementById('bgMusic');
+                    if (audio) {
+                        audio.volume = this.initialVolume;
+                    }
+                },
 
                 // SHIPPING INFO
                 shippingInfo: {
@@ -394,7 +411,7 @@
 
                 // AUTH STATES
                 showAuth: false,
-                authMode: 'login', // 'login' or 'signup'
+                authMode: 'login', 
                 isLoggedIn: false,
                 userName: 'Juan Dela Cruz',
 
@@ -436,12 +453,10 @@
                         alert('Please fill out shipping information');
                         return;
                     }
-                    // Capture current state for summary
                     this.lastOrder = {
                         items: [...this.cart],
                         total: this.cart.reduce((sum, i) => sum + (i.price * i.qty), 0)
                     };
-                    // Move to summary and clear cart
                     this.view = 'summary';
                     this.cart = [];
                 },
